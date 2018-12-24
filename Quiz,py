@@ -1,0 +1,59 @@
+import os.path
+from random import randint
+
+if __name__ == '__main__':
+    total_number_of_questions = 2
+    now_questions = []
+    try:
+        with open('questions.txt', 'r') as questions:
+            bulk_questions = questions.read()
+            bulk_questions = bulk_questions.split('\n')
+            for bulk_one_question in bulk_questions:
+                tmp_question_parts = bulk_one_question.split(',')
+                now_questions.append({'question': tmp_question_parts[0],
+                                      'options': [tmp_question_parts[1], tmp_question_parts[2],
+                                                  tmp_question_parts[3], tmp_question_parts[4]],
+                                      'true_answer': int(tmp_question_parts[5])})
+            # pprint(now_questions)
+        if os.path.exists('score.txt'):
+            with open('score.txt') as old_score:
+                score = old_score.read()
+                bulk_score = score.split(',')
+                true_question_counter, false_question_counter = int(bulk_score[0]), int(bulk_score[1])
+        else:
+            with open('score.txt', 'w') as create_score:
+                create_score.write('0,0')
+                true_question_counter, false_question_counter = 0, 0
+
+        print("=" * 30)
+        print("Welcome to Quiz Program...")
+        print("=" * 30)
+        for _ in range(total_number_of_questions):
+            random_number_no = randint(0, len(now_questions)-1)
+            random_question = now_questions[random_number_no]
+            now_questions.remove(random_question)
+            print("{question}\n1){answer_1}\n2){answer_2}\n3){answer_3}\n4){answer_4}".format(
+                question=random_question['question'],
+                answer_1=random_question['options'][0],
+                answer_2=random_question['options'][1],
+                answer_3=random_question['options'][2],
+                answer_4=random_question['options'][3],
+            ))
+            tmp_answer = int(input())
+            if tmp_answer == random_question['true_answer']:
+                true_question_counter += 1
+            else:
+                false_question_counter += 1
+        print("Quiz is ended. Your Scores:\n True Answers:{true_question_counter}, "
+              "False Answers:{false_question_counter}".format(true_question_counter=true_question_counter,
+                                                              false_question_counter=false_question_counter))
+
+        with open('score.txt', 'w') as final_score:
+            final_score.write('{true_question_counter},{false_question_counter}'.format(true_question_counter=true_question_counter,
+                                                                                        false_question_counter=false_question_counter))
+    except Exception as e:
+        with open('questions.txt', 'w') as questions:
+            questions.write('SampleQuestion,choise,choise,choise,choise,1\n'
+                            'SampleQuestion,choise,choise,choise,choise,1')
+        print("Questions.txt created. Read sample question schema and "
+              "write your questions then start program again.")
